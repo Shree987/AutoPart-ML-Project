@@ -86,40 +86,34 @@ def TotalEncodingCost(D, A, G):
 def OutlierDetection(D, A, G):
 	n = G.shape[0]
 	k = len(A)
-	MAX = n*n + n
 	diff = 0
-	outlier = set()
+	outlier =[]
+	D_ = D.copy()
 	k_group = {}
 
 	for i in range(n):
 		for j in range(n):
-			if i == j:
+			if i == j or D[i][j] == 0:
 				continue
 			(x, y) = (G[i], G[j])
 			if x == y:
 				continue
-			if k_group.get((x, y)) == None:
-				k_group[(x, y)] = (i, j)
+			k_group[(x, y)] = (i, j)
 
-	while MAX > diff:
-		cost = 0
-		KEY = None
-		for key in k_group.keys():
-			(x, y) = k_group[key]
-			D_ = D.copy()
-			D_[x][y] = 0
-			cost_ = TotalEncodingCost(D_, A, G) - TotalEncodingCost(D, A, G)
-			if cost_ > cost:
-				cost = cost_
-				KEY = key
 
-		MAX = cost
-		if cost > diff and KEY is not None:	
-			k_group.pop(KEY)
-			(X , Y) = KEY
-			RemoveOutliers(D, G, X, Y)
-		else:
-			break
+	for key in k_group.keys():
+		(x, y) = k_group[key]
+		D_[x][y] -= 1
+		cost_ = TotalEncodingCost(D_, A, G) - TotalEncodingCost(D, A, G)
+		D_[x][y] += 1
+		if cost_ > 0:
+			outlier.append(key)
+
+	for KEY in outlier:
+		(X , Y) = KEY
+		RemoveOutliers(D, G, X, Y)
+
+	return D
 
 
 def RemoveOutliers(D, G, x, y):
@@ -129,8 +123,7 @@ def RemoveOutliers(D, G, x, y):
 			for j in range(n):
 				if G[j] == y and D[i][j] == 1:	
 					D[i][j] -= 1
-
-
+					D[j][i] -= 1
 
 
 if __name__ == "__main__":
