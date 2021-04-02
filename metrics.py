@@ -83,6 +83,56 @@ def TotalEncodingCost(D, A, G):
 	return description_cost + code_cost
 
 
+def OutlierDetection(D, A, G):
+	n = G.shape[0]
+	k = len(A)
+	MAX = n*n + n
+	diff = 0
+	outlier = set()
+	k_group = {}
+
+	for i in range(n):
+		for j in range(n):
+			if i == j:
+				continue
+			(x, y) = (G[i], G[j])
+			if x == y:
+				continue
+			if k_group.get((x, y)) == None:
+				k_group[(x, y)] = (i, j)
+
+	while MAX > diff:
+		cost = 0
+		KEY = None
+		for key in k_group.keys():
+			(x, y) = k_group[key]
+			D_ = D.copy()
+			D_[x][y] = 0
+			cost_ = TotalEncodingCost(D_, A, G) - TotalEncodingCost(D, A, G)
+			if cost_ > cost:
+				cost = cost_
+				KEY = key
+
+		MAX = cost
+		if cost > diff and KEY is not None:	
+			k_group.pop(KEY)
+			(X , Y) = KEY
+			RemoveOutliers(D, G, X, Y)
+		else:
+			break
+
+
+def RemoveOutliers(D, G, x, y):
+	n = G.shape[0]
+	for i in range(n):
+		if G[i] == x:
+			for j in range(n):
+				if G[j] == y and D[i][j] == 1:	
+					D[i][j] -= 1
+
+
+
+
 if __name__ == "__main__":
 	A = np.array([1, 2, 3, 4, 5])
 	print(DescriptionCost(A))

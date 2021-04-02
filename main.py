@@ -25,7 +25,7 @@ print("Total encoding cost = ",TotalEncodingCost(D, A, G))
 # Oulier Detection
 
 D_ = D.copy()
-D_ = OutlierDetection(D_, A, G)
+OutlierDetection(D_, A, G)
 outlier = []
 n = G.shape[0]
 for i in range(n):
