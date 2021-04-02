@@ -86,7 +86,7 @@ def TotalEncodingCost(D, A, G):
 def OutlierDetection(D, A, G):
 	n = G.shape[0]
 	k = len(A)
-	diff = 0
+	diff = 0.5
 	outlier =[]
 	D_ = D.copy()
 	k_group = {}
@@ -106,7 +106,8 @@ def OutlierDetection(D, A, G):
 		D_[x][y] -= 1
 		cost_ = TotalEncodingCost(D_, A, G) - TotalEncodingCost(D, A, G)
 		D_[x][y] += 1
-		if cost_ > 0:
+		# print(key, cost_)
+		if abs(cost_) > diff:
 			outlier.append(key)
 
 	for KEY in outlier:

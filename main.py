@@ -10,8 +10,8 @@ D = inputExcel.to_numpy()
 
 print("Adjacency matrix shape: ", D.shape)
 
-A = np.array([2, 3, 2])
-G = np.array([1, 1, 2, 2, 2, 3, 3])
+A = np.array([4, 3, 3])
+G = np.array([1, 1, 1, 1, 2, 2, 2, 3, 3, 3])
 
 print("Total encoding cost = ",TotalEncodingCost(D, A, G))
 
@@ -37,7 +37,7 @@ if len(outlier) == 0:
 	print("\nNo outlier detected!")
 
 else:
-	print("\nFollowing are outliers detected\n")
+	print("\nFollowing are the detected outliers\n")
 	no = 1
 	for edge in outlier:
 		(x, y) = edge
