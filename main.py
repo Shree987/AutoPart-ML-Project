@@ -5,13 +5,13 @@ from metrics import TotalEncodingCost, OutlierDetection
 
 # Import the Adjacency Matrix
 
-inputExcel = pd.read_excel("AdjacencyMatrix.xlsx", header=None)
+inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
 D = inputExcel.to_numpy()
 
 print("Adjacency matrix shape: ", D.shape)
 
 A = np.array([4, 3, 3])
-G = np.array([1, 1, 1, 1, 2, 2, 2, 3, 3, 3])
+G = np.array([1, 1, 2, 3, 2, 3, 1, 3, 1, 2])
 
 print("Total encoding cost = ",TotalEncodingCost(D, A, G))
 
@@ -45,5 +45,5 @@ else:
 		no = no + 1
 
 df = pd.DataFrame (D_)
-filepath = 'FinalAdjacencyMatrix.xlsx'
+filepath = 'Datasets/FinalAdjacencyMatrix-1.xlsx'
 df.to_excel(filepath, index=False, header = False)
