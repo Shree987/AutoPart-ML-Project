@@ -1,6 +1,7 @@
 import numpy as np
 from math import log2, ceil, log
 import pandas as pd
+import matplotlib.pyplot as pl
 
 
 def log_n(n):
@@ -126,6 +127,45 @@ def RemoveOutliers(D, G, x, y):
 					D[i][j] -= 1
 					D[j][i] -= 1
 
+def Visualize(D):
+	pl.figure()
+	DD = []
+	for i in range(len(D)):
+		DD_row = []
+		for j in range(len(D[i])):
+			if(D[i][j] == 1):
+				DD_row += [(0, 0, 0)]
+			else:
+				DD_row += [(1, 1, 1)]
+
+		DD += [DD_row]
+	tb = pl.table(cellColours=DD,  loc=(0, 0), cellLoc='center')
+	tc = tb.properties()['children']
+	for cell in tc:
+		cell.set_height(1/2)
+		cell.set_width(1/2)
+		cell.set_linewidth(0)
+    # cell.set_line_width(0)
+	tb.scale(3/len(D), 3/len(D))
+	ax = pl.gca()
+	ax.axis('off')
+	ax.set_xticks([])
+	ax.set_yticks([])
+
+def Transform(D, G):
+	DD = D.copy()
+	mmap = {}
+	curr=0
+	for i in range(len(D+1)):
+		for j in range(len(D)):
+			if G[j] == i:
+				mmap[j]=curr
+				curr+=1
+	
+	for i in range(len(D)):
+		for j in range(len(D)):
+			DD[mmap[i]][mmap[j]] = D[i][j]
+	return DD
 
 if __name__ == "__main__":
 	A = np.array([1, 2, 3, 4, 5])
