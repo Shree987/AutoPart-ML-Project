@@ -4,6 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as pl
 
 
+'''
+D : Adjacency Matrix
+A : Number of nodes in each groups
+G : Mapping of nodes to cluster index
+
+'''
+
 def log_n(n):
 	val = 0
 	n = log2(n)
@@ -84,6 +91,23 @@ def TotalEncodingCost(D, A, G):
 	return description_cost + code_cost
 
 
+def GraphPartitioning(D, A, G):
+	K = 1
+	n = len(D)
+	# Outer loop
+	while True:
+		t = 0
+		
+		# Inner Loop
+		while True:
+
+			
+			break
+		break
+
+	return K
+
+
 def OutlierDetection(D, A, G):
 	n = G.shape[0]
 	k = len(A)
@@ -127,6 +151,7 @@ def RemoveOutliers(D, G, x, y):
 					D[i][j] -= 1
 					D[j][i] -= 1
 
+
 def Visualize(D):
 	pl.figure()
 	DD = []
@@ -152,6 +177,7 @@ def Visualize(D):
 	ax.set_xticks([])
 	ax.set_yticks([])
 
+
 def Transform(D, G):
 	DD = D.copy()
 	mmap = {}
@@ -166,6 +192,7 @@ def Transform(D, G):
 		for j in range(len(D)):
 			DD[mmap[i]][mmap[j]] = D[i][j]
 	return DD
+
 
 if __name__ == "__main__":
 	A = np.array([1, 2, 3, 4, 5])

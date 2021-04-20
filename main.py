@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from metrics import TotalEncodingCost, OutlierDetection, Visualize, Transform
-
+from metrics import TotalEncodingCost, OutlierDetection, Visualize, Transform, GraphPartitioning
 
 # Import the Adjacency Matrix
 
@@ -10,14 +9,15 @@ D = inputExcel.to_numpy()
 Visualize(D)
 print("Adjacency matrix shape: ", D.shape)
 
-A = np.array([4, 3, 3])
-G = np.array([1, 1, 2, 3, 2, 3, 1, 3, 1, 2])
+
+A = np.array([len(D)])
+G = np.ones((len(D))).astype(np.uint16)
 Visualize(Transform(D, G))
 print("Total encoding cost = ",TotalEncodingCost(D, A, G))
 
 # Process to map node to k-cluster
 
-
+K = GraphPartitioning(D, A, G)
 
 
 
