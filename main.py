@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from metrics import TotalEncodingCost, OutlierDetection, Visualize, Transform, GraphPartitioning
+from metrics import TotalEncodingCost, GraphPartitioning, OutlierDetection, Visualize, Transform, ClusterDistance
 
 # Import the Adjacency Matrix
 
@@ -8,23 +8,32 @@ inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
 D = inputExcel.to_numpy()
 
 Visualize(D)
+print(D)
 print("Adjacency matrix shape: ", D.shape)
-
 
 A = np.array([len(D)])
 G = np.ones((len(D))).astype(np.uint16)
+
 Visualize(Transform(D, G))
-print("Total encoding cost = ",TotalEncodingCost(D, A, G))
+print("Initial Total encoding cost = ",TotalEncodingCost(D, A, G))
 
 # Process to map node to k-cluster
 
+print("\n\n------------- Auto-Partioning Graph -------------\n")
 K, G_, A_ = GraphPartitioning(D, A, G)
+print("After Auto-partioning : ")
+print("K = ", K)
 print("Final Node to Cluster mapping", G_)
+print("Elements in each cluster : ", A_)
+print("Total encoding cost (after partitioning) = ", TotalEncodingCost(D, A_, G_))
+
+
 
 # Outlier Detection
 
+print("\n\n------------- Outlier Detection -------------\n")
 D_ = D.copy()
-D_ = OutlierDetection(D_, A, G)
+D_ = OutlierDetection(D_, A_, G_)
 outlier = []
 n = G.shape[0]
 for i in range(n):
@@ -44,6 +53,22 @@ else:
 		print("Edge %-6d : %6d    <-> %6d" % (no, x+1, y+1))
 		no = no + 1
 
+print("Total encoding cost :")
+print("Before removing outlier = ", TotalEncodingCost(D, A_, G_))
+print("After removing outlier = ", TotalEncodingCost(D_, A_, G_))
+
+
+
+# Cluster Distance
+'''
+print("\n\n------------- Cluster Distance -------------\n")
+print(A_, G_)
+distance = ClusterDistance(D, A_, G_)
+print("Following is the matrix representing the Cluster distance")
+print(distance)
+print("\n")
+
 df = pd.DataFrame (D_)
 filepath = 'Datasets/FinalAdjacencyMatrix-1.xlsx'
 df.to_excel(filepath, index=False, header = False)
+'''
