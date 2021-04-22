@@ -21,6 +21,13 @@ def log_n(n):
 	return val
 
 
+def BinaryShannonEntropy(prob):
+	if prob == 0 or prob == 1:
+		return 0
+	else:
+		return -prob*np.log2(prob) - (1-prob)*np.log2(1-prob)
+
+
 def LOG(val):
 	if val == 0:
 		return 0
@@ -36,6 +43,29 @@ def calculateA(G, K):
 	for k in G:
 		A[k-1] += 1
 	return A
+
+
+def calculateDij(D, G, i, j, x = -2):
+	n = len(G)
+	Dij = 0
+	Dji = 0
+	for I in range(n):
+		if I == x:
+			continue
+		if G[I] == i:
+			for J in range(n):
+				if J == x:
+					continue
+				if G[J] == j:
+					Dij += D[I][J]
+
+		if G[I] == j:
+			for J in range(n):
+				if J == x:
+					continue
+				if G[J] == i:
+					Dji += D[I][J]
+	return Dij, Dji
 
 
 def DescriptionCost(A):
@@ -110,26 +140,72 @@ def TotalEncodingCost(D, A, G):
 
 
 def GraphPartitioning(D, A, G):
-	K = 3
+	K = len(A)
 	n = len(D)
+	cost = TotalEncodingCost(D, A, G)
 
 	# Outer loop
 	while True:
-		t = 0
-		
-		cost = TotalEncodingCost(D, A, G)
+		K_new = K + 1
+		G_new = G.copy()
+		A_new = A.copy()
+
+		Entropy = np.zeros((K))
+
+		Dij = np.zeros((K, K))
+
+		for i in range(n):
+			for j in range(n):
+				Dij[G[i]-1][G[j]-1] += D[i][j]
+
+		for i in range(K):
+			for j in range(K):
+				Pij = Dij[i][j] / (A[i]*A[j])
+				Pji = Dij[j][i] / (A[i]*A[j])
+				Entropy[i] += A[j] * (BinaryShannonEntropy(Pij) + BinaryShannonEntropy(Pji))
+
+		r = np.argmax(Entropy) + 1
+		A_new = np.append(A_new, 0)
+
+		for x in range(n):
+			if G_new[x] == r:
+				with_ = 0
+				without_ = 0
+				for j in range(K):
+					Drj, Djr = calculateDij(D, G_new, r, j+1)
+					Arj = A_new[r-1]*A_new[j]
+					with_ += Arj * (BinaryShannonEntropy(Drj/Arj) + BinaryShannonEntropy(Djr/Arj))
+
+					if A_new[r-1] > 1:
+						Arj_ = (A_new[r-1]-1)*A_new[j]
+						Drj, Djr = calculateDij(D, G_new, r, j+1, x = x)
+						without_ += Arj_* (BinaryShannonEntropy(Drj/Arj_) + BinaryShannonEntropy(Djr/Arj_))
+
+
+				if with_ > without_:
+					G_new[x] = K+1
+					A_new[r-1] -= 1
+					A_new[K] += 1
 
 		# Inner loop
 		while True:
 			cost_new = cost.copy()
 			G_ = G_new.copy()
 			Weight = np.zeros((K_new,K_new))
+			AiAj = np.zeros((K_new, K_new))
+			for i in range(K_new):
+				for j in range(K_new):
+					AiAj[i][j] = A_new[i]*A_new[j]
 
 			for x in range(n):
 				kx = G_new[x]-1
 				for y in range(n):
 					ky = G_new[y]-1
 					Weight[kx][ky] += D[x][y]
+
+			#print(Weight)
+			#print(AiAj)
+			#print(Weight/AiAj)
 
 
 			for x in range(n):
@@ -149,7 +225,7 @@ def GraphPartitioning(D, A, G):
 					if D[x][x] == 1:
 						arr[i] = LOG(Weight[i][curr_k]/AiAk) + LOG(Weight[curr_k][i]/AiAk) - LOG(Weight[i][i]/AiAi)
 					else:
-						arr[i] = LOG((1-Weight[i][curr_k])/AiAk) + LOG((1-Weight[curr_k][i])/AiAk) - LOG((1-Weight[i][i])/AiAi)
+						arr[i] = LOG(1-(Weight[i][curr_k]/AiAk)) + LOG(1-(Weight[curr_k][i]/AiAk)) - LOG(1-(Weight[i][i]/AiAi))
 
 					for j in range(K_new):
 						AiAj = A_new[i]*A_new[j]
@@ -161,13 +237,26 @@ def GraphPartitioning(D, A, G):
 			A_ = calculateA(G_, K_new)
 			cost_ = TotalEncodingCost(D, A_, G_)
 			if 0 in A_ or cost_new == cost_:
-				return K, G, A
+				break
 			G_new = G_
 			A_new = A_
 			cost_new = cost_
+			print(G_new, " = G_new \t G = ", G)
+			print(A_new, " = A_new \t A = ", A)
 
-		return K, G, A
-		break
+		if 0 in A_new:
+			return K, G, A
+
+		cost_new = TotalEncodingCost(D, A_new, G_new)		
+		print("Outer loop G_new = ", G_new)
+		if cost == cost_new:
+			break
+
+		K = K + 1
+		A = A_new.copy()
+		G = G_new.copy()
+		print(G)
+		cost = cost_new.copy()
 
 	return K, G, A
 
@@ -195,7 +284,6 @@ def OutlierDetection(D, A, G):
 		D_[x][y] -= 1
 		cost_ = TotalEncodingCost(D_, A, G) - TotalEncodingCost(D, A, G)
 		D_[x][y] += 1
-		# print(key, cost_)
 		if abs(cost_) > diff:
 			outlier.append(key)
 
@@ -243,16 +331,18 @@ def Visualize(D):
 
 
 def Transform(D, G):
+	n = len(D)
 	DD = D.copy()
 	mmap = {}
 	curr=0
-	for i in range(len(D+1)):
-		for j in range(len(D)):
-			if G[j] == i:
+	for i in range(n):
+		for j in range(n):
+			if G[j] == i+1:
 				mmap[j]=curr
 				curr+=1
 	
-	for i in range(len(D)):
-		for j in range(len(D)):
+	for i in range(n):
+		for j in range(n):
 			DD[mmap[i]][mmap[j]] = D[i][j]
 	return DD
+

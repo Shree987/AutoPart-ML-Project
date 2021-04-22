@@ -6,6 +6,7 @@ from metrics import TotalEncodingCost, OutlierDetection, Visualize, Transform, G
 
 inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
 D = inputExcel.to_numpy()
+
 Visualize(D)
 print("Adjacency matrix shape: ", D.shape)
 
@@ -17,11 +18,10 @@ print("Total encoding cost = ",TotalEncodingCost(D, A, G))
 
 # Process to map node to k-cluster
 
-K = GraphPartitioning(D, A, G)
+K, G_, A_ = GraphPartitioning(D, A, G)
+print("Final Node to Cluster mapping", G_)
 
-
-
-# Oulier Detection
+# Outlier Detection
 
 D_ = D.copy()
 D_ = OutlierDetection(D_, A, G)
