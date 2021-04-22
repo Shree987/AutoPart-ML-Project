@@ -21,6 +21,23 @@ def log_n(n):
 	return val
 
 
+def LOG(val):
+	if val == 0:
+		return 0
+	else:
+		if val <= 0:
+			print(val)
+			exit(0)
+		return np.log2(val)
+
+
+def calculateA(G, K):
+	A = np.zeros((K))
+	for k in G:
+		A[k-1] += 1
+	return A
+
+
 def DescriptionCost(A):
 	k = len(A)
 	cost1 = log_n(k)
@@ -34,14 +51,14 @@ def DescriptionCost(A):
 			cost_sum = cost_sum + A[j]
 			j = j+1
 		cost_sum += i+1-k
-		cost2 = cost2 + ceil(log2(cost_sum))
+		cost2 = cost2 + ceil(LOG(cost_sum))
 		i = i + 1
 
 	cost3 = 0
 
 	for i in range(k):
 		for j in range(k):
-			cost3 = cost3 + ceil(log2((A[i]*A[j] + 1)))
+			cost3 = cost3 + ceil(LOG((A[i]*A[j] + 1)))
 
 	return cost1 + cost2 + cost3
 
@@ -77,10 +94,11 @@ def CodeCost(D, G, k):
 					y = y + 1
 				x = x + 1
 
-			P = ones / total
+			if total > 0:
+				P = ones / total
 
-			if ones > 0 and ones < total:
-				cost = cost - ones*log(P) - (total - ones)*log(1 - P)
+				if ones > 0 and ones < total:
+					cost = cost - ones*np.log2(P) - (total - ones)*np.log2(1 - P)
 
 	return cost
 
@@ -92,20 +110,66 @@ def TotalEncodingCost(D, A, G):
 
 
 def GraphPartitioning(D, A, G):
-	K = 1
+	K = 3
 	n = len(D)
+
 	# Outer loop
 	while True:
 		t = 0
 		
-		# Inner Loop
-		while True:
+		cost = TotalEncodingCost(D, A, G)
 
+		# Inner loop
+		while True:
+			cost_new = cost.copy()
+			G_ = G_new.copy()
+			Weight = np.zeros((K_new,K_new))
+
+			for x in range(n):
+				kx = G_new[x]-1
+				for y in range(n):
+					ky = G_new[y]-1
+					Weight[kx][ky] += D[x][y]
+
+
+			for x in range(n):
+				curr_k = G_new[x]-1
+				Xrow = np.zeros((K_new, 2))
+				Xcol = np.zeros((K_new, 2))
+				for itr in range(n):
+					k = G_new[itr]-1
+					Xrow[k][D[x][itr]] += 1
+					Xcol[k][D[itr][x]] += 1
+
+				arr = np.zeros((K_new))
+				for i in range(K_new):
+					AiAi = A_new[i]*A_new[i]
+					AiAk = A_new[i]*A_new[curr_k]
+
+					if D[x][x] == 1:
+						arr[i] = LOG(Weight[i][curr_k]/AiAk) + LOG(Weight[curr_k][i]/AiAk) - LOG(Weight[i][i]/AiAi)
+					else:
+						arr[i] = LOG((1-Weight[i][curr_k])/AiAk) + LOG((1-Weight[curr_k][i])/AiAk) - LOG((1-Weight[i][i])/AiAi)
+
+					for j in range(K_new):
+						AiAj = A_new[i]*A_new[j]
+						arr[i] -= Xrow[j][1]*LOG(Weight[i][j]/AiAj) + Xrow[j][0]*LOG((AiAj - Weight[i][j])/AiAj)
+						arr[i] -= Xcol[j][1]*LOG(Weight[j][i]/AiAj) + Xcol[j][0]*LOG((AiAj - Weight[j][i])/AiAj)
+				
+				G_[x] = np.argmin(arr) + 1
 			
-			break
+			A_ = calculateA(G_, K_new)
+			cost_ = TotalEncodingCost(D, A_, G_)
+			if 0 in A_ or cost_new == cost_:
+				return K, G, A
+			G_new = G_
+			A_new = A_
+			cost_new = cost_
+
+		return K, G, A
 		break
 
-	return K
+	return K, G, A
 
 
 def OutlierDetection(D, A, G):
@@ -192,8 +256,3 @@ def Transform(D, G):
 		for j in range(len(D)):
 			DD[mmap[i]][mmap[j]] = D[i][j]
 	return DD
-
-
-if __name__ == "__main__":
-	A = np.array([1, 2, 3, 4, 5])
-	print(DescriptionCost(A))
