@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from math import log2, ceil, log
 import copy
 import matplotlib.pyplot as pl
@@ -33,7 +34,7 @@ def DescriptionCost(A):
 
 	A_ = A.copy()
 	A_[::-1].sort()
-	
+
 	cost1 = log_n(K)
 	cost2 = 0
 	for i in range(K-1):
@@ -103,6 +104,7 @@ def CalculateDij(D, G, i, j, x = -2):
 					Dji += D[J][I]
 
 	return Dij, Dji
+
 
 def GraphPartitioning(D, A, G):
 	K = 1
@@ -195,7 +197,7 @@ def GraphPartitioning(D, A, G):
 						if AiAj > 0:				
 							arr[i] -= Xrow[j][1]*LOG(Weight[i][j]/AiAj) + Xrow[j][0]*LOG((AiAj - Weight[i][j])/AiAj)
 							arr[i] -= Xcol[j][1]*LOG(Weight[j][i]/AiAj) + Xcol[j][0]*LOG((AiAj - Weight[j][i])/AiAj)
-				
+
 				G_[x] = np.argmin(arr) + 1
 
 			if np.sum((G_ - G_new)**2) == 0:
@@ -231,6 +233,7 @@ def GraphPartitioning(D, A, G):
 		cost = copy.copy(cost_new)
 
 	return K, G, A
+
 
 def OutlierDetection(D, A, G):
 	n = G.shape[0]
@@ -300,8 +303,7 @@ def ClusterDistance(D, A, G):
 
 	return distance
 
-
-
+ 
 def Visualize(D, index = 0):
 	pl.figure()
 	DD = []
@@ -320,7 +322,6 @@ def Visualize(D, index = 0):
 		cell.set_height(1/2)
 		cell.set_width(1/2)
 		cell.set_linewidth(0)
-    # cell.set_line_width(0)
 	tb.scale(3/len(D), 3/len(D))
 	ax = pl.gca()
 	ax.axis('off')
@@ -329,10 +330,9 @@ def Visualize(D, index = 0):
 	if index == 0:
 		pl.savefig('Initial Matrix.png')
 	elif index == 1:
-		pl.savefig('Initial Matrix after permuting.png')
+		pl.savefig('Matrix after clustering.png')
 	elif index == 2:
 		pl.savefig('Matrix removing outliers.png')
-
 
 
 def Transform(D, G):
@@ -345,10 +345,9 @@ def Transform(D, G):
 			if G[j] == i+1:
 				mmap[j]=curr
 				curr+=1
-	
+
 	for i in range(n):
 		for j in range(n):
 			DD[mmap[i]][mmap[j]] = D[i][j]
 
 	return DD
-

@@ -4,25 +4,24 @@ from metrics import TotalEncodingCost, GraphPartitioning, OutlierDetection, Visu
 
 # Import the Adjacency Matrix
 
-#inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
-inputExcel = pd.read_excel("Datasets/Graph3.xlsx", header=None)
+inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
 D = inputExcel.to_numpy()
 
 Visualize(D)
-print(D)
+print("Initial Matrix:\n", D)
 print("Adjacency matrix shape: ", D.shape)
 
 A = np.array([len(D)])
 G = np.ones((len(D))).astype(np.uint16)
 
-Visualize(Transform(D, G), 1)
 print("Initial Total encoding cost = ",TotalEncodingCost(D, A, G))
 
 # Process to map node to k-cluster
 
-print("\n\n------------- Auto-Partioning Graph -------------\n")
+print("\n\n------------- Auto-Partitioning Graph -------------\n")
 K, G_, A_ = GraphPartitioning(D, A, G)
-print("After Auto-partioning : ")
+Visualize(Transform(D, G_), 1)
+print("After Auto-partitioning : ")
 print("K = ", K)
 print("Final Node to Cluster mapping", G_)
 print("Elements in each cluster : ", A_)
