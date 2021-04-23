@@ -211,7 +211,8 @@ def GraphPartitioning(D, A, G):
 			elif cost_new == cost_:
 				G_new = G_.copy()
 				A_new = A_.copy()
-				cost_new = cost_				
+				cost_new = cost_
+				break				
 
 			G_new = G_.copy()
 			A_new = A_.copy()
@@ -222,7 +223,7 @@ def GraphPartitioning(D, A, G):
 
 		cost_new = TotalEncodingCost(D, A_new, G_new)
 		if cost == cost_new:
-			break
+			return K, G, A
 
 		K = K + 1
 		A = A_new.copy()
@@ -287,14 +288,12 @@ def ClusterDistance(D, A, G):
 			for a in range(K-1):
 				A_[a] = A[a]
 			A_[i] += A[j]
-			print(len(A_), j, len(A), K-1)
 			if j!= K-1:
 				A_[j] = A[K-1]
 
 			G_ = G.copy()
-			G_ = np.where(G_ == j, i, G_)
-			G_ = np.where(G_ == K, j, G_)
-			print(i, j, A, A_, G_, G)
+			G_ = np.where(G_ == j+1, i+1, G_)
+			G_ = np.where(G_ == K, j+1, G_)
 			cost_ = TotalEncodingCost(D, A_, G_)
 
 			distance[i][j] = distance[j][i] = (cost_ - cost_orig)/cost_orig
@@ -303,7 +302,7 @@ def ClusterDistance(D, A, G):
 
 
 
-def Visualize(D):
+def Visualize(D, index = 0):
 	pl.figure()
 	DD = []
 	for i in range(len(D)):
@@ -327,6 +326,13 @@ def Visualize(D):
 	ax.axis('off')
 	ax.set_xticks([])
 	ax.set_yticks([])
+	if index == 0:
+		pl.savefig('Initial Matrix.png')
+	elif index == 1:
+		pl.savefig('Initial Matrix after permuting.png')
+	elif index == 1:
+		pl.savefig('Matrix removing outliers.png')
+
 
 
 def Transform(D, G):
@@ -343,5 +349,6 @@ def Transform(D, G):
 	for i in range(n):
 		for j in range(n):
 			DD[mmap[i]][mmap[j]] = D[i][j]
+
 	return DD
 

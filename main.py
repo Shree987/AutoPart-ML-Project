@@ -4,7 +4,8 @@ from metrics import TotalEncodingCost, GraphPartitioning, OutlierDetection, Visu
 
 # Import the Adjacency Matrix
 
-inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
+#inputExcel = pd.read_excel("Datasets/AdjacencyMatrix-1.xlsx", header=None)
+inputExcel = pd.read_excel("Datasets/Graph3.xlsx", header=None)
 D = inputExcel.to_numpy()
 
 Visualize(D)
@@ -14,7 +15,7 @@ print("Adjacency matrix shape: ", D.shape)
 A = np.array([len(D)])
 G = np.ones((len(D))).astype(np.uint16)
 
-Visualize(Transform(D, G))
+Visualize(Transform(D, G), 1)
 print("Initial Total encoding cost = ",TotalEncodingCost(D, A, G))
 
 # Process to map node to k-cluster
@@ -52,7 +53,8 @@ else:
 		(x, y) = edge
 		print("Edge %-6d : %6d    <-> %6d" % (no, x+1, y+1))
 		no = no + 1
-
+Visualize(Transform(D_, G_), 2)
+print("Matrix after removing outliers:\n", D_)
 print("Total encoding cost :")
 print("Before removing outlier = ", TotalEncodingCost(D, A_, G_))
 print("After removing outlier = ", TotalEncodingCost(D_, A_, G_))
@@ -60,9 +62,8 @@ print("After removing outlier = ", TotalEncodingCost(D_, A_, G_))
 
 
 # Cluster Distance
-'''
+
 print("\n\n------------- Cluster Distance -------------\n")
-print(A_, G_)
 distance = ClusterDistance(D, A_, G_)
 print("Following is the matrix representing the Cluster distance")
 print(distance)
@@ -71,4 +72,3 @@ print("\n")
 df = pd.DataFrame (D_)
 filepath = 'Datasets/FinalAdjacencyMatrix-1.xlsx'
 df.to_excel(filepath, index=False, header = False)
-'''
