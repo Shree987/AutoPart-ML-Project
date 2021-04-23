@@ -330,7 +330,7 @@ def Visualize(D, index = 0):
 		pl.savefig('Initial Matrix.png')
 	elif index == 1:
 		pl.savefig('Initial Matrix after permuting.png')
-	elif index == 1:
+	elif index == 2:
 		pl.savefig('Matrix removing outliers.png')
 
 

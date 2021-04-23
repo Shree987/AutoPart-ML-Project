@@ -53,7 +53,7 @@ else:
 		(x, y) = edge
 		print("Edge %-6d : %6d    <-> %6d" % (no, x+1, y+1))
 		no = no + 1
-Visualize(Transform(D, G_), 2)
+Visualize(Transform(D_, G_), 2)
 print("Matrix after removing outliers:\n", D_)
 print("Total encoding cost :")
 print("Before removing outlier = ", TotalEncodingCost(D, A_, G_))
